@@ -8,6 +8,8 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
+    env_file:
+      - .env
     environment:
       - DJANGO_SECRET=${DJANGO_SECRET}
       - DB_HOST=db
@@ -26,12 +28,14 @@ services:
     image: postgres:15.3-alpine3.17
     volumes:
       - dev-db-data:/var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
-      test: sh -c "echo ${POSTGRES_DB} && echo ${POSTGRES_USER}  && pg_isready -U ${POSTGRES_USER}"
+      test: sh -c "pg_isready -U ${POSTGRES_USER}"
       interval: 1s
       timeout: 1s
       retries: 5
