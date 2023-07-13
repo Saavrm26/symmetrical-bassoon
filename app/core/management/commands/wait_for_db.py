@@ -22,7 +22,6 @@ class Command(BaseCommand):
         db_ready = False
         while (not db_ready):
             try:
-                # self.check(databases=['default'])
                 db_conn.cursor()
                 db_ready = True
 
