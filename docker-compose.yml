@@ -8,8 +8,6 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
-    env_file:
-      - .env
     environment:
       - DJANGO_SECRET=${DJANGO_SECRET}
       - DB_HOST=db
@@ -17,8 +15,7 @@ services:
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
     command: sh -c "python manage.py wait_for_db &&
                     python manage.py migrate &&
@@ -34,11 +31,11 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    healthcheck:
-      test: sh -c "pg_isready -U ${POSTGRES_USER}"
-      interval: 1s
-      timeout: 1s
-      retries: 5
+    # healthcheck:
+    #   test: sh -c "pg_isready -U ${POSTGRES_USER}"
+    #   interval: 1s
+    #   timeout: 1s
+    #   retries: 5
 
 volumes:
   dev-db-data:
