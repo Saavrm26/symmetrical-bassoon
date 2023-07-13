@@ -8,4 +8,33 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
-    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DJANGO_SECRET=${DJANGO_SECRET}
+      - DB_HOST=db
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+    command: sh -c "python manage.py wait_for_db &&
+                    python manage.py migrate &&
+                    python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:15.3-alpine3.17
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: sh -c "echo ${POSTGRES_DB} && echo ${POSTGRES_USER}  && pg_isready -U ${POSTGRES_USER}"
+      interval: 1s
+      timeout: 1s
+      retries: 5
+
+volumes:
+  dev-db-data:
